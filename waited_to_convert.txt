@@ -1,0 +1,39 @@
+# 当p有三种输入(userdate/point、role、function)
+def toTarget(p, role1):
+    def inner(role):
+        target = None
+        # inSpeed = 4500  # 需要的入嘴速度
+        if callable(p):
+            target = p()
+        elif isinstance(p, (int, float, str)):
+            target = Player.pos(p)
+        # Python中没有userdata类型，这里假设p是某种对象
+        else:
+            target = p
+
+        pw = None
+
+        if IS_SIMULATION:
+            # debugEngine.gui_debug_msg(CGeoPoint.new_local(0, 0), "0")
+            if role1 is None:
+                return Player.toPointDist(role, target) < 2500 and 2500 or Player.toPointDist(role, target)  # *1.2 --+1900
+            else:
+                return Player.toPointDist(role1, target) < 2500 and 2500 or Player.toPointDist(role1, target)  # *1.2
+        else:
+            # if Player.num(role) == 1:
+            #     pw = Player.toPointDist(role, target)*0.553167 + 0.0000345591*math.pow(Player.toPointDist(role, target),2) + 987.004
+            # elif Player.num(role) in [0, 4, 5, 2, 3]:
+            #     pw = Player.toPointDist(role, target)*0.136966 + 0.000103831*math.pow(Player.toPointDist(role, target),2) + 774.202  # *1.5714 + 428.57
+            if role1 is None:
+                pw = Player.toPointDist(role, target) * 1
+            else:
+                pw = Player.toPointDist(role1, target) * 1
+
+        if pw < 1500:  # 50 --> 250 Modified by Soap, 2015/4/11
+            pw = 1500  # 50 --> 250 Modified by Soap, 2015/4/11
+        elif pw > 5000:
+            pw = 5000
+
+        return pw
+
+    return inner

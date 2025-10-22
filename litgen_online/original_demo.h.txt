@@ -1,0 +1,40 @@
+// This namespace is not outputed as a submodule, since it is marked as Root (see options.namespaces_root)
+namespace MyNamespace
+{
+    // Multiplies a list of double by a given factor, returns updated list
+    std::vector<double> MultiplyDoubles(const std::vector<double>& v, float k);
+
+    // changes the value of the bool parameter (passed by modifiable reference)
+    // (This function will use a BoxedBool in the python code, so that its value can be modified)
+    void SwitchBoolValue(bool &v);
+
+    // Standalone comment blocs are also exported
+
+    // This function includes an API marker which will be ignored when generating the bindings
+    MY_API int MySubstract(int a, int b); // eol doc is also included in bindings doc
+    MY_API int addString(const char* a, const char* b); // This function will be exported as a python function
+    namespace MyMath // This namespace is not ignored and introduces a new python module
+    {
+        // div and mul: divide or multiply float numbers
+        // (This comment concerns the two grouped
+        // functions below, and will be exported as such)
+        float Div(float a, float b); // Divide
+        float Mul(float a, float b); // Multiply
+    }
+
+    // Stores Pixel coordinates
+    struct Pixel
+    {
+        // Coordinates
+        double x = 2., y = 3.;
+
+        // Draw a pixel
+        void Draw(Image& i);
+
+        private:
+        double _Norm(); // this will not be exported as it is private
+    };
+
+    // This macro value be exported, as it matches the regex macro_define_include_by_name__regex
+    #define MY_VALUE 123
+}

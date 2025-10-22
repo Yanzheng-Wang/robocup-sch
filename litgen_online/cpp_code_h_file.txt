@@ -1,0 +1,1 @@
+void makeItNormalShoot(int runner, const double power, bool isChip=false, int flag=0);

@@ -1,0 +1,1 @@
+这个是用于自动生成pybind11代码的Jupyter笔记本，从litgen online官网中下载的同款笔记本。配置的时候应当注意前面的一些conifg，还有一些诸如API的设置
