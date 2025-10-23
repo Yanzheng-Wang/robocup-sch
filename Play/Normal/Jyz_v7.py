@@ -11,8 +11,10 @@ from Vision import Enemy, Player, Ball
 from WorldModel import Flags, Conditions, Params, Positions
 from RoleMatch_LuaStyle.Skills.Skill import *
 
-ShootPositionUp = CGeoPoint(2500, 500) # 用于设定Pass状态B的跑位
-ShootPositionDown = CGeoPoint(2500, -500)
+ShootPositionUp = CGeoPoint(2500, 1000) # 用于设定Pass状态B的跑位
+ShootPositionDown = CGeoPoint(2500, -1000)
+ReceivePositionUp = CGeoPoint(2300, 900)
+ReceivePositionDown = CGeoPoint(2300, -900)
 FinishPosUp = CGeoPoint(4500, 400) # 用于配合LastShoot中的PassToPos使用
 FinishPosDown = CGeoPoint(4500, -400)
 
@@ -23,11 +25,18 @@ class ControlBall(State):
 
     @override
     def getTasks(self) -> "dict[str, Task]":
-        return {
-            "A": Task(Skill.RushToV4(pos=Ball.pos(), mydir=Player.toBallDir("A"))),
-            "B": Task(Skill.SimpleGoTo(CGeoPoint(2500, 0))),
-            "C": Task(Skill.Goalie(), fixedNumber=0)
-        }
+        if Ball.posY() > 0:
+            return {
+                "A": Task(Skill.RushToV4(pos=Ball.pos(), mydir=Player.toBallDir("A"))),
+                "B": Task(Skill.SimpleGoTo(ShootPositionDown)),
+                "C": Task(Skill.Goalie(), fixedNumber=0)
+            }
+        else:
+            return {
+                "A": Task(Skill.RushToV4(pos=Ball.pos(), mydir=Player.toBallDir("A"))),
+                "B": Task(Skill.SimpleGoTo(ShootPositionUp)),
+                "C": Task(Skill.Goalie(), fixedNumber=0)
+            }
 
     @override
     def transFunction(self) -> str:
@@ -45,14 +54,14 @@ class PassBall(State):
     def getTasks(self) -> "dict[str, Task]":
         if Ball.posY() > 0: # 如果门将位置站在偏上方，向相反方向传球
             return {
-                "A": Task(Skill.PassToPos(ShootPositionDown, kickpower=5500)),
-                "B": Task(Skill.SimpleGoTo(ShootPositionDown)),
+                "A": Task(Skill.PassToPos(ShootPositionDown, kickpower=2000)),
+                "B": Task(Skill.SimpleGoTo(ReceivePositionDown)),
                 "C": Task(Skill.Goalie(), fixedNumber=0)
             }
         else:
             return {
-                "A": Task(Skill.PassToPos(ShootPositionUp, kickpower=5500)),
-                "B": Task(Skill.SimpleGoTo(ShootPositionUp)),
+                "A": Task(Skill.PassToPos(ShootPositionUp, kickpower=2000)),
+                "B": Task(Skill.SimpleGoTo(ReceivePositionUp)),
                 "C": Task(Skill.Goalie(), fixedNumber=0)
             }
 
@@ -60,7 +69,7 @@ class PassBall(State):
     def transFunction(self) -> str:
         if Ball.isBallInBox() or Ball.isBallOutSide():
             return "Defense"
-        elif Player.calToBallDist("B") < 1200:
+        elif Player.calToBallDist("B") < 1000:
             return "Transition"
         else:
             return "PassBall"
@@ -75,13 +84,13 @@ class Transition(State):
     def getTasks(self):
         if Ball.posY() > 0:
             return {
-                "A": Task(Skill.PassToPos(FinishPosDown, 500)),
+                "A": Task(Skill.NormalShoot(1000, isChip=False)),
                 "B": Task(Skill.SimpleGoTo(ShootPositionDown)),
                 "C": Task(Skill.Goalie(), fixedNumber=0)
             }
         else:
             return {
-                "A": Task(Skill.PassToPos(FinishPosUp, 500)),
+                "A": Task(Skill.NormalShoot(1000, isChip=False)),
                 "B": Task(Skill.SimpleGoTo(ShootPositionUp)),
                 "C": Task(Skill.Goalie(), fixedNumber=0)
             }
@@ -98,7 +107,7 @@ class Transition(State):
 class LastShoot(State):
     @override
     def getMatchString(self) -> str:
-        return "(A)(B){C}"
+        return "[A][B]{C}"
 
     @override
     def getTasks(self) -> "dict[str, Task]":
@@ -131,7 +140,7 @@ class Defense(State):
     def getTasks(self) -> "dict[str, Task]":
         if Ball.posX() < 0:
             return {
-                "A": Task(Skill.NormalShoot(3000, isChip=True)),
+                "A": Task(Skill.NormalShoot(2000, isChip=True)),
                 # "B": Task(Skill.GetBall()),
                 "B": Task(Skill.SimpleGoTo(ShootPositionUp)),
                 "C": Task(Skill.Goalie())
@@ -147,7 +156,7 @@ class Defense(State):
     @override
     def transFunction(self) -> str:
         if not Ball.isBallInBox() and not Ball.isBallOutSide() and Player.isOurPlayerControlBall():
-            if abs(Player.pos("A").x() - 2000) < 500 and abs(Player.pos("B").x() - 2000) < 500: # 位置很好，直接补射
+            if abs(Player.pos("A").x() - 2000) < 500: # 位置很好，直接补射
                 return "LastShoot"
             else:
                 return "ControlBall"
@@ -162,5 +171,5 @@ class Defense(State):
     LastShoot,
     Defense
 )
-class Jyz_v7(StateMachine):
+class V7(StateMachine):
     pass
