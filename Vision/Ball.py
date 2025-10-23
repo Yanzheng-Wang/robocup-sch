@@ -5,6 +5,8 @@ from CppPackage import VisionModule, CGeoPoint, CGeoSegment
 from Vision import Player, Enemy
 from WorldModel import Params
 
+
+
 # 这样写是错误的！第一次import的时候只执行一次。原cpp代码要求每一帧都重新调用ball()函数！
 # ball:"CppPackage.BallVisionT" = CppPackage.VisionModule.Instance().ball()
 
@@ -380,3 +382,18 @@ def toOurGoalPostDistSum():
 #
 # def enemyDistMinusPlayerDist(role):
 #     return toBestEnemyDist() - toPlayerDist(role)
+
+
+
+def isBallInBox() -> bool:
+    if posX() > 3500 and abs(posY()) < 1000:
+        return True
+    else:
+        return False
+    
+
+def isBallOutSide() -> bool:
+    if abs(posX()) > 4500 or abs(posY()) > 3000:
+        return True
+    else:
+        return False

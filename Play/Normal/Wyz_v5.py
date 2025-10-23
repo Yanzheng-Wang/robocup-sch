@@ -84,14 +84,24 @@ class RushWait(State):
     def transFunction(self) -> str:
         if (Enemy.isEnemyControlBall() or Ball.isBallInBox()) and not Player.isOurPlayerControlBall():
             return "Defense"
-        if buffered_condition((Ball.Pos() - Player.Pos("B")).mod() > 1000 , 5):
+        ## 有对抗下
+        # if buffered_condition((Ball.Pos() - Player.Pos("B")).mod() > 1000 , 5):
+        #     if (Player.Pos("B") - WAIT_POS).mod() < 200 and Player.canFlatPassToPos("A", WAIT_POS): # 到达位置了，能传球就传球
+        #         return "Pass"   # v1
+        #             # return "PassAndGet"   # v2
+        #     if not Player.canFlatPassToPos("A", WAIT_POS):
+        #         return "Score"
+        # elif (Ball.Pos() - Player.Pos("B")).mod() > 1000 and (Player.Pos("B") - WAIT_POS).mod() < 200:
+        #     return "Score"
+        # 暂时无对抗下
+        if buffered_condition((WAIT_POS - Player.Pos("B")).mod() < 1000 , 5):
             if (Player.Pos("B") - WAIT_POS).mod() < 200 and Player.canFlatPassToPos("A", WAIT_POS): # 到达位置了，能传球就传球
                 return "Pass"   # v1
                     # return "PassAndGet"   # v2
             if not Player.canFlatPassToPos("A", WAIT_POS):
-                return "Score"
-        elif (Ball.Pos() - Player.Pos("B")).mod() > 1000 and (Player.Pos("B") - WAIT_POS).mod() < 200:
-            return "Score"
+                return "Rush"
+        # elif (Ball.Pos() - Player.Pos("B")).mod() > 1000 and (Player.Pos("B") - WAIT_POS).mod() < 200:
+        #     return "Score"
 
 class Pass(State):
     @override
@@ -110,30 +120,31 @@ class Pass(State):
         #     "A": Task(Skill.PassToPos(Player.Pos("B"), kickpower = 4000)), # GetBestPower 不可用的话，就得自己寻找合适值
         #     "B": Task(Skill.Stop()),
         # } 
+        global WAIT_POS
         global PlayerDist
         PlayerDist = (Player.pos("A") - Player.pos("B")).mod()
         if PlayerDist > 5000:
             return {
                 "A": Task(Skill.PassToPos(Player.Pos("B"), kickpower = PlayerDist - 1500)), # GetBestPower 不可用的话，就得自己寻找合适值
-                "B": Task(Skill.SimpleGoTo(CGeoPoint(Player.posX("B") - 200, Player.posY("B")))),
+                "B": Task(Skill.SimpleGoTo(CGeoPoint(WAIT_POS.x() - 200, Player.posY("B")))),
                 "C": Task(Skill.Goalie(), fixedNumber=0)
             }   
         elif PlayerDist > 3000:
             return {
                 "A": Task(Skill.PassToPos(Player.Pos("B"), kickpower = PlayerDist)), # GetBestPower 不可用的话，就得自己寻找合适值
-                "B": Task(Skill.SimpleGoTo(CGeoPoint(Player.posX("B") - 200, Player.posY("B")))),
+                "B": Task(Skill.SimpleGoTo(CGeoPoint(WAIT_POS.x() - 200, Player.posY("B")))),
                 "C": Task(Skill.Goalie(), fixedNumber=0)
             }   
         elif PlayerDist > 1000:
             return {
                 "A": Task(Skill.PassToPos(Player.Pos("B"), kickpower = PlayerDist + 1000)), # GetBestPower 不可用的话，就得自己寻找合适值
-                "B": Task(Skill.SimpleGoTo(CGeoPoint(Player.posX("B") - 200, Player.posY("B")))),
+                "B": Task(Skill.SimpleGoTo(CGeoPoint(WAIT_POS.x() - 200, Player.posY("B")))),
                 "C": Task(Skill.Goalie(), fixedNumber=0)
             }   
         else:
             return {
             "A": Task(Skill.PassToPos(Player.Pos("B"), kickpower = 1000)), # GetBestPower 不可用的话，就得自己寻找合适值
-            "B": Task(Skill.SimpleGoTo(CGeoPoint(Player.posX("B") - 200, Player.posY("B")))),
+            "B": Task(Skill.SimpleGoTo(CGeoPoint(WAIT_POS.x() - 200, Player.posY("B")))),
             "C": Task(Skill.Goalie(), fixedNumber=0)
         }  
 
@@ -142,19 +153,19 @@ class Pass(State):
         if (Enemy.isEnemyControlBall() or Ball.isBallInBox()) and not Player.isOurPlayerControlBall():
             return "Defense"
         # 理论
-        # global PlayerDist
-        # if PlayerDist > 5000:
-        #     if (Ball.pos() - Player.pos("B")).mod() < 3000: # 为了流畅度这个200可以调整
-        #         return "Get"
-        # elif PlayerDist > 3000:
-        #     if (Ball.pos() - Player.pos("B")).mod() < 3000:
-        #         return "Get"
-        # elif PlayerDist >= 0:
-        #     if (Ball.pos() - Player.pos("B")).mod() < 2000:
-        #         return "Get"
+        global PlayerDist
+        if PlayerDist > 5000:
+            if (Ball.pos() - Player.pos("B")).mod() < 3000: # 为了流畅度这个200可以调整
+                return "Get"
+        elif PlayerDist > 3000:
+            if (Ball.pos() - Player.pos("B")).mod() < 3000:
+                return "Get"
+        elif PlayerDist >= 0:
+            if (Ball.pos() - Player.pos("B")).mod() < 2000:
+                return "Get"
         # 实际
-        if (Ball.pos() - Player.pos("B")).mod() < 3000:
-            return "Get" 
+        # if (Ball.pos() - Player.pos("B")).mod() < 3000:
+        #     return "Get" 
         
 class Get(State):
     @override
@@ -165,10 +176,10 @@ class Get(State):
     def getTasks(self) -> "dict[str, Task]":
         return {
             # "A": Task(Skill.WMarking(priority = 1, num = 1)),
-            "A": Task(Skill.WMarking(priority = 1, num = Enemy.nearestToOurGoalNum())),
-            # "A": Task(Skill.Stop()), # 少用Stop
+            # "A": Task(Skill.WMarking(priority = 1, num = Enemy.nearestToOurGoalNum())),
+            "A": Task(Skill.Stop()), # 少用Stop
             # "A": Task(Skill.RushTo(Ball.pos(), angle = Player.toBallDir("A"), maxAcc = 1)),
-            "B": Task(Skill.NormalShoot(power = 12700, isChip = False)),
+            "B": Task(Skill.GetBall()),
             "C": Task(Skill.Goalie(), fixedNumber=0)
         }
     
@@ -195,9 +206,9 @@ class Score(State):
     def getTasks(self) -> "dict[str, Task]":
         return {
             "A": Task(Skill.NormalShoot(isChip=False, power=12700)), # isChip 可以修改
-            # "B": Task(Skill.RushTo(Ball.pos(), angle = Player.toBallDir("B"), maxAcc = 1)),
+            "B": Task(Skill.Stop()),
             # "B": Task(Skill.WMarking(priority = 1, num = 1)),
-            "B": Task(Skill.WMarking(priority = 1, num = Enemy.nearestToOurGoalNum())),
+            # "B": Task(Skill.WMarking(priority = 1, num = Enemy.nearestToOurGoalNum())),
             "C": Task(Skill.Goalie(), fixedNumber=0)
         }
 
@@ -226,23 +237,6 @@ class Defense(State):
         if Ball.posX() > 0 and not Enemy.isEnemyControlBall() and not Ball.isBallInBox():
             return "Rush"
 
-
-class AllStop(State):
-    @override 
-    def getMatchString(self) -> str:
-        return "[AB]"
-
-    @override 
-    def getTasks(self):
-        return {
-            "A": Task(Skill.Stop()),
-            "B": Task(Skill.Stop())
-        }
-    
-    @override 
-    def transFunction(self):
-        return "AllStop"
-
 # todo: start state
 @declare_state_machine(
     Rush,
@@ -253,5 +247,5 @@ class AllStop(State):
     Defense
     # AllStop
 )
-class Wyz_v4(StateMachine):
+class Wyz_v5(StateMachine):
     pass

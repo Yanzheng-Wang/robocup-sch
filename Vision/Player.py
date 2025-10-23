@@ -8,7 +8,7 @@ import Vision
 from CppPackage import CGeoPoint
 from Vision import Ball, Enemy
 from WorldModel import Params, worldModel
-
+ 
 def instance(role)->"CppPackage.PlayerVisionT":
     if isinstance(role, str):
         realIns = Vision.ourPlayer(Global.getRoleNumber(role))
@@ -18,15 +18,15 @@ def instance(role)->"CppPackage.PlayerVisionT":
         print("Invalid role in player.instance!!!2222222")
         return None
     return realIns
-
+ 
 def ourPlayer(num):
     return CppPackage.VisionModule.Instance().ourPlayer(num)
-
-
+ 
+ 
 def theirPlayer(num):
     return CppPackage.VisionModule.Instance().theirPlayer(num)
-
-
+ 
+ 
 def isValid(num: int) -> bool:
     """
     判断我方的车号是否有效
@@ -34,7 +34,7 @@ def isValid(num: int) -> bool:
     :return: 是否有效
     """
     return Vision.ourPlayer(num).Valid()
-
+ 
 def getAllValidNumbers() -> "list[int]":
     """寻找所有有效车号"""
     result = []
@@ -42,8 +42,8 @@ def getAllValidNumbers() -> "list[int]":
         if Vision.Player.ourPlayer(i).Valid():
             result.append(i)
     return result
-
-
+ 
+ 
 def ourPlayerPos(num: int) -> CppPackage.CGeoPoint:
     """
     获取球员位置
@@ -51,7 +51,7 @@ def ourPlayerPos(num: int) -> CppPackage.CGeoPoint:
     :return: 球员位置
     """
     return Vision.ourPlayer(num).Pos()
-
+ 
 # def toBallDir(num: int) -> numbers:
 #     """
 #     获取我方球员指向球的方向
@@ -59,13 +59,13 @@ def ourPlayerPos(num: int) -> CppPackage.CGeoPoint:
 #     :return: 球员指向球的方向
 #     """
 #     return (Vision.Ball.Pos() - Vision.ourPlayer(num).Pos()).dir()
-
-
+ 
+ 
 @overload
 def Pos(num: int) -> CppPackage.CGeoPoint: ...
 @overload
 def Pos(roleName: str) -> CppPackage.CGeoPoint: ...
-
+ 
 def Pos(role: Union[int,str]) -> CppPackage.CGeoPoint:
     """
     获取球员位置
@@ -86,9 +86,9 @@ def Pos(role: Union[int,str]) -> CppPackage.CGeoPoint:
             # raise ValueError(f"Role {roleName} is not assigned a valid number.")
         return Vision.ourPlayer(Global.getRoleNumber(roleName)).Pos()
     return Vision.Ball.Pos()
-
-
-
+ 
+ 
+ 
 def getActualRoleNumber(role: "str | int")-> int:
     if isinstance(role, str):
         return Global.getRoleNumber(role)
@@ -97,70 +97,70 @@ def getActualRoleNumber(role: "str | int")-> int:
     else:
         print("Invalid role in player.instance!!!")
         return -1
-
+ 
 def pos(role):
     return instance(role).Pos()
-
+ 
 def posX(role):
     return instance(role).X()
-
+ 
 def posY(role):
     return instance(role).Y()
-
+ 
 def direction(role: Union[int, str]) -> float:
     return instance(role).Dir()
-
+ 
 def vel(role):
     return instance(role).Vel()
-
+ 
 def velDir(role):
     return vel(role).dir()
-
+ 
 def velMod(role):
     return vel(role).mod()
-
+ 
 def rotVel(role):
     return instance(role).RotVel()
-
+ 
 def rawPos(role):
     return instance(role).RawPos()
-
+ 
 def rawVel(role):
     return instance(role).RawVel()
-
+ 
 def rawVelMod(role):
     return rawVel(role).mod()
-
+ 
 def valid(role):
     return instance(role).Valid()
-
+ 
 def valid1(role):
     return lambda: valid(role)
-
+ 
 # def myvalid(role):
 #     return number(role) != -1
-
+ 
 def toBallDist(role):
     return pos(role).dist(Ball.pos())
-
+ 
 def toBallDir(role):
     return (Ball.pos() - pos(role)).dir()
-
+ 
 def backBallDir(role):
     return (pos(role) - Ball.pos()).dir()
-
+ 
 def toTheirGoalDist(role):
     return pos(role).dist(CGeoPoint(Params.pitchLength / 2.0, 0))
-
+ 
 def toOurGoalDist(role):
     return pos(role).dist(CGeoPoint(-Params.pitchLength / 2.0, 0))
-
+ 
 def toTheirGoalDir(role):
     return (CGeoPoint(Params.pitchLength / 2.0, 0) - pos(role)).dir()
-
+ 
 def toOurGoalDir(role):
     return (CGeoPoint(-Params.pitchLength / 2.0, 0) - pos(role)).dir()
-
+ 
 def toPlayerDir(role1, role2=None):
     """
     如果role2没有指定，则返回一个lambda，实际上就是到自身的dir！这样在大多数情况下是不正确的！尽量自行指定！或者使用语义更加明确的toSelfDir
@@ -169,7 +169,7 @@ def toPlayerDir(role1, role2=None):
         return lambda role2: (pos(role1) - pos(role2)).dir()
     else:
         return (pos(role2) - pos(role1)).dir()
-
+ 
 def toPlayerDirFromSelf(role):
     """
     计算role相对于自身的方向，是(pos(role) - pos(selfRole)).dir()
@@ -177,7 +177,7 @@ def toPlayerDirFromSelf(role):
     :return:
     """
     return lambda selfRole: (pos(role) - pos(selfRole)).dir()
-
+ 
 def toPlayerHeadDir(role1, role2=None):
     if role2 is None:
         def inner(role2):
@@ -187,13 +187,13 @@ def toPlayerHeadDir(role1, role2=None):
     else:
         tmpPlayerHead = pos(role2) + Utils.Polar2Vector(76, direction(role2))
         return (tmpPlayerHead - pos(role1)).dir()
-
+ 
 def toPlayerDist(role1, role2=None):
     if role2 is None:
         return lambda role2: (pos(role1) - pos(role2)).mod()
     else:
         return (pos(role2) - pos(role1)).mod()
-
+ 
 def toTargetTime(p, role=None):
     if role is None:
         def inner(role):
@@ -203,14 +203,14 @@ def toTargetTime(p, role=None):
     else:
         target = p() if callable(p) else p
         return worldModel.timeToTarget(getActualRoleNumber(role), target) * Params.frameRate
-
+ 
 def toTargetDist(role):
     """
     计算role到其matchPos的距离
     """
     p = Global.getRolePos(role)
     return pos(role).dist(p)
-
+ 
 def blocked():
     pl = Params.pitchLength
     num_ = -1
@@ -224,7 +224,7 @@ def blocked():
     if Enemy.toBallDist(num_) < 120 and abs(Enemy.toBallDir(num_) - Enemy.dir(num_)) < math.pi/5:
         return True
     return False
-
+ 
 def toTargetDir(targetPoint, role=None):
     if role is None:
         return lambda role: (targetPoint - pos(role)).dir()
@@ -235,19 +235,19 @@ def toTargetDir(targetPoint, role=None):
             else:
                 return (targetPoint - pos(role)).dir()
         return inner
-
+ 
 def toTheirPenaltyDist(role):
     tmpToGoalDist = (CGeoPoint(Params.pitchLength/2.0, 0) - pos(role)).mod()
     return tmpToGoalDist - 80
-
+ 
 def toPointDist(role, p):
     pos_ = p() if callable(p) else p
     return pos(role).dist(pos_)
-
+ 
 def backShootPos(p):
     tmpShootDir = (p - CGeoPoint(Params.pitchLength / 2.0, 0)).dir()
     return p + Utils.Polar2Vector(9, tmpShootDir)
-
+ 
 def toPointDir(p, role=None):
     if role is None:
         if callable(p):
@@ -256,31 +256,31 @@ def toPointDir(p, role=None):
             return lambda role1: (p - pos(role1)).dir()
     else:
         return (p - pos(role)).dir()
-
+ 
 def kickBall(role):
     """判断小车是否下发了setKick或者setChipKick指令
     而不是实际中视觉判断的是不是把球踢出了
-
+ 
     Args:
         role (_type_): _description_
-
+ 
     Returns:
         _type_: _description_
     """
     return worldModel.IsBallKicked(getActualRoleNumber(role))
-
+ 
 def kickBallVision(role):
     return worldModel.IsBallKickedVision(getActualRoleNumber(role))
-
+ 
 def infraredOn(role):
     return worldModel.IsInfraredOn(getActualRoleNumber(role))
-
+ 
 def infraredCount(role):
     return worldModel.InfraredOnCount(getActualRoleNumber(role))
-
+ 
 def infraredOffCount(role):
     return worldModel.InfraredOffCount(getActualRoleNumber(role))
-
+ 
 def toShootOrRobot(role1):
     def inner(role2):
         shootDir = (CGeoPoint(Params.pitchLength / 2.0, 0) - pos(role2)).dir()
@@ -293,7 +293,7 @@ def toShootOrRobot(role1):
         else:
             return shootDir
     return inner
-
+ 
 # def canBreak(role):
 #     for i in range(Params.maxPlayer):
 #         if Enemy.valid(i):
@@ -304,7 +304,7 @@ def toShootOrRobot(role1):
 #                 if Enemy.pos(i).dist(projP) < 400:
 #                     return False
 #     return True
-
+ 
 def isMarked(role):
     closestDist = 99999
     defennum = None
@@ -318,7 +318,7 @@ def isMarked(role):
                     closestDist = tmpDist
                     defennum = i
     return closestDist < 400
-
+ 
 def DisMarked(role):
     closestDist = 99999
     defennum = None
@@ -332,13 +332,13 @@ def DisMarked(role):
                     closestDist = tmpDist
                     defennum = i
     return closestDist < 800
-
+ 
 def testPassPos(role):
     def inner():
         factor = -1 if posX(role) > 0 else 1
         return CGeoPoint(150 * factor, 0)
     return inner
-
+ 
 def canFlatPassTo(role1, role2):
     p1 = pos(role1)
     p2 = pos(role2) + Utils.Polar2Vector(Params.playerFrontToCenter, direction(role2))
@@ -350,7 +350,7 @@ def canFlatPassTo(role1, role2):
             if dist < 200 and isprjon:
                 return False
     return True
-
+ 
 def ifBlockBallLine(role, originpos, targetpos):
     p1 = originpos() if callable(originpos) else originpos
     p2 = targetpos() if callable(targetpos) else targetpos
@@ -360,7 +360,7 @@ def ifBlockBallLine(role, originpos, targetpos):
     if dist < 20 and isprjon:
         return True
     return False
-
+ 
 def canFlatPassToPos(role, targetpos):
     p1 = pos(role)
     id_ = getActualRoleNumber(role) if isinstance(role, str) else role
@@ -379,7 +379,7 @@ def canFlatPassToPos(role, targetpos):
             if dist < 120 and isprjon:
                 return False
     return True
-
+ 
 def GetBestPower(role1, role2):
     p1 = pos(role1)
     if callable(role2):
@@ -400,7 +400,7 @@ def GetBestPower(role1, role2):
         return 250
     else:
         return 300
-
+ 
 def canFlatReceive(passer, receiver):
     p1 = pos(passer)
     if callable(receiver):
@@ -418,7 +418,7 @@ def canFlatReceive(passer, receiver):
             if dist < 200 and isprjon:
                 return False
     return True
-
+ 
 def canDirectShoot(role1, d=70, proj_d=12):
     p1 = pos(role1)
     p2 = pos(role1) + Utils.Polar2Vector(d, direction(role1))
@@ -430,7 +430,7 @@ def canDirectShoot(role1, d=70, proj_d=12):
             if dist < proj_d and isprjon:
                 return False
     return True
-
+ 
 def canChipPassTo(role1, role2):
     p1 = pos(role1)
     p2 = pos(role2)
@@ -441,13 +441,13 @@ def canChipPassTo(role1, role2):
             if dist1 < 300 or dist2 < 300:
                 return False
     return True
-
+ 
 def isBallPassed(role1, role2):
     p1 = pos(role1)
     p2 = pos(role2)
     ptrDir = (p2 - p1).dir()
     return abs(Utils.Normalize(Ball.velDir() - ptrDir)) < math.pi / 18 and Ball.velMod() > 800
-
+ 
 def isBallPassedNormalPlay(role1, role2):
     passerDir = direction(role1)
     p1 = pos(role1)
@@ -456,7 +456,7 @@ def isBallPassedNormalPlay(role1, role2):
     return (abs(Utils.Normalize(Ball.velDir() - ptrDir)) < math.pi / 18 and
             abs(Utils.Normalize(Ball.velDir() - passerDir)) < math.pi / 10 and
             Ball.velMod() > 1600)
-
+ 
 def passIntercept(role):
     receiver = pos(role)
     ptrDir = (receiver - Ball.pos()).dir()
@@ -467,13 +467,13 @@ def passIntercept(role):
             return False
     else:
         return False
-
+ 
 # def antiYDir(p): # 反人类的东西
 #     def inner(role):
 #         if isinstance(p, type('userdata')):
 #             return (Ball.antiYPos(p)() - pos(role)).dir()
 #     return inner
-
+ 
 def faceball2target(role, t, diff=None):
     if diff is None:
         d = 0.2
@@ -487,7 +487,7 @@ def faceball2target(role, t, diff=None):
         return True
     else:
         return False
-
+ 
 def isInForbiddenZone4ballplace(role):
     thereShouldDist = 60
     p1 = CGeoPoint(Ball.placementPos().x(), Ball.placementPos().y())
@@ -501,7 +501,7 @@ def isInForbiddenZone4ballplace(role):
         return True
     else:
         return False
-
+ 
 def stayPos4ballplace(role):
     thereShouldDist = 70
     myposX = None
@@ -525,16 +525,16 @@ def stayPos4ballplace(role):
             myposY = posY(role)
         return CGeoPoint(myposX, myposY)
     return compute
-
+ 
 def realNumExist(n):
     return valid(n)
-
+ 
 def backballpos(role):
     def inner():
         stand = Ball.pos() + Utils.Polar2Vector(Params.playerFrontToCenter, Utils.Normalize(direction(role) + math.pi))
         return stand
     return inner
-
+ 
 def canshoot(role):
     ipos = pos(role)
     idir = direction(role)
@@ -544,7 +544,7 @@ def canshoot(role):
         return True
     else:
         return False
-
+ 
 def shootGen(dist, dir=None):  # 与球有关站在球附近的位置 dist为与球距离 dir为在球的什么方向
     theirgoal = CGeoPoint(Params.pitchLength / 2, 0)
     pos = None
@@ -552,9 +552,78 @@ def shootGen(dist, dir=None):  # 与球有关站在球附近的位置 dist为与
         dir = (Ball.pos() - theirgoal).dir()
     pos = Ball.pos() + Utils.Polar2Vector(dist, dir)
     return pos
-
-
+ 
+#=================================================================#
+# 下面为自己增加的函数
+ 
+def successGetBall(role) -> bool:
+    '''
+    用于判断进攻球员是否拿到球，可根据实际修改对应的距离数值
+    '''
+    if (Ball.pos() - pos(role)).mod() < 100:
+        return True 
+    else:
+        return False
+ 
+def chooseReceiver(passer, role1, role2) -> str:
+    '''
+    用于选择合适的进攻传球接收人
+    '''
+    if canFlatPassTo(passer, role1) and canFlatReceive(passer, role1):
+        return role1 
+    elif canFlatPassTo(passer, role2) and canFlatReceive(passer, role2):
+        return role2 
+    else:
+        return ""
+ 
+def calPlayerDist(role1: str, role2: str) -> float:
+    '''
+    用于计算两名球员之间的距离
+    '''
+    return (pos(role1) - pos(role2)).mod()
+ 
+def calPlayerDir(role1: str, role2: str) -> float:
+    '''
+    用于计算两名球员之间的角度
+    '''
+    return (pos(role1) - pos(role2)).dir()
+ 
+def calToPointDist(role: str, p: CGeoPoint) -> float:
+    '''
+    用于计算对应的球员到某个点的距离
+    '''
+    return (pos(role) - p).mod()
+ 
+def calToPointDir(role: str, p: CGeoPoint) -> float:
+    '''
+    用于计算对应的球员到某个点的方向
+    '''
+    return (pos(role) - p).dir()
+ 
+def calToBallDist(role: str) -> float:
+    return calToPointDist(role, Ball.pos())
+ 
+def calToBallDir(role: str) -> float:
+    return calToPointDir(role, Ball.pos())
+ 
+def isOurPlayerControlBall():
+    validNum = getAllValidNumbers()
+    for i in validNum:
+        if valid(i):
+            if successGetBall(i):
+                return True
+    return False
+ 
 # -----------------------没有用的函数---------------------------
+# def defenseChaos(role1, role2) -> bool:
+#     '''
+#     用于判断防守的时候两个GetBall的防守球员是否会冲撞在一起
+#     '''
+#     if toBallDist(role1) < 100 and toBallDist(role2) < 100:
+#         return True
+#     else:
+#         return False
+ 
 # def InfoControlled(role):
 #     roleNum = num(role)
 #     return skillUtils.getOurBestPlayer() == roleNum

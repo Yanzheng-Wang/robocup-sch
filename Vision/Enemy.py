@@ -50,6 +50,59 @@ def toBallDist(role):
 def attackNum():
     return defenceInfo.getAttackNum()
 
+
+def successGetBall(role: int) -> bool:
+    '''
+    用于判断进攻球员是否拿到球，可根据实际修改对应的距离数值
+    '''
+    if (Ball.pos() - pos(role)).mod() < 200:
+        return True 
+    else:
+        return False
+
+validNum =[]
+def updateValidNum():
+    """
+    用于更新除门将外的敌人的有效编号
+    Returns:
+        _type_: _description_
+    """
+    global validNum
+    for i in range(1, Params.maxPlayer):
+        if valid(i):
+            validNum.append(i)
+    return validNum
+
+def isEnemyControlBall() -> bool:
+    """
+    用于判断敌方是否处于控球状态
+    Returns:
+        bool: _description_
+    """
+    updateValidNum()
+    global validNum
+    for i in validNum:
+        if valid(i):
+            if successGetBall(i):
+                return True
+    return False
+
+def notControlBall() -> int:
+    """
+    用于找到没有控球敌人的编号
+    Raises:
+        ValueError: _description_
+
+    Returns:
+        int: _description_
+    """
+    global validNum
+    for i in validNum:
+        if valid(i):
+            if not successGetBall(i):
+                return i
+    raise ValueError("cannot Find not Control Ball Enemy!!!!!!!!!!!!!!!")
+
 lastnum = 0
 def myattackNum():
     global lastnum
@@ -168,6 +221,15 @@ def nearNum():
         if valid(i) and nearDist > theDist:
             nearDist = theDist
             result = i
+    return result
+
+# 最靠近己方球门的号码
+def nearestToOurGoalNum():
+    result = 1
+    for i in range(1, Params.maxPlayer):
+        if valid(i):
+            if posX(result) > posX(i):
+                result = i
     return result
 
 def markPos():
@@ -338,6 +400,7 @@ def getneddpos(str_, max_):
                     topos[this] = pos(i)
         return topos.get(num)
     return inner
+
 
 # --------------------没有用的函数--------------------
 # def best():

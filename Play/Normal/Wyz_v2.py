@@ -1,3 +1,5 @@
+# 没有敌人状态下的无敌传球射门版本
+
 import math
 from typing import override
 
@@ -20,6 +22,9 @@ WAIT_POS: CGeoPoint
 flag: bool
 receive_ball_range = 100
 PlayerDist = (Player.pos("A") - Player.pos("B")).mod()
+
+GoalPointUp = CGeoPoint(4500, 400)
+GoalPointDown = CGeoPoint(4500, -400)
 
 # 一个人跑位一个拿球
 
@@ -95,59 +100,54 @@ class Pass(State):
     
     @override
     def getTasks(self) -> "dict[str, Task]":
-        # if (Player.pos("A") - Player.pos("B")).mod() > 4000:
+        # global PlayerDist
+        # PlayerDist = (Player.pos("A") - Player.pos("B")).mod()
+        # if PlayerDist > 5000:
         #     return {
-        #     "A": Task(Skill.PassToPos(Player.Pos("B"), kickpower = 5000)), # GetBestPower 不可用的话，就得自己寻找合适值
+        #         "A": Task(Skill.PassToPos(Player.Pos("B"), kickpower = PlayerDist - 1500)), # GetBestPower 不可用的话，就得自己寻找合适值
+        #         "B": Task(Skill.Stop()),
+        #         "C": Task(Skill.Goalie(), fixedNumber=0)
+        #     }   
+        # elif PlayerDist > 3000:
+        #     return {
+        #         "A": Task(Skill.PassToPos(Player.Pos("B"), kickpower = PlayerDist)), # GetBestPower 不可用的话，就得自己寻找合适值
+        #         "B": Task(Skill.Stop()),
+        #         "C": Task(Skill.Goalie(), fixedNumber=0)
+        #     }   
+        # elif PlayerDist > 1000:
+        #     return {
+        #         "A": Task(Skill.PassToPos(Player.Pos("B"), kickpower = PlayerDist + 1000)), # GetBestPower 不可用的话，就得自己寻找合适值
+        #         "B": Task(Skill.Stop()),
+        #         "C": Task(Skill.Goalie(), fixedNumber=0)
+        #     }   
+        # else:
+        #     return {
+        #     "A": Task(Skill.PassToPos(Player.Pos("B"), kickpower = 1000)), # GetBestPower 不可用的话，就得自己寻找合适值
         #     "B": Task(Skill.Stop()),
-        # } 
-        # elif (Player.pos("A") - Player.pos("B")).mod() >3000 :
-        #    return {
-        #     "A": Task(Skill.PassToPos(Player.Pos("B"), kickpower = 4000)), # GetBestPower 不可用的话，就得自己寻找合适值
-        #     "B": Task(Skill.Stop()),
-        # } 
-        global PlayerDist
-        PlayerDist = (Player.pos("A") - Player.pos("B")).mod()
-        if PlayerDist > 5000:
+        #     "C": Task(Skill.Goalie(), fixedNumber=0)
+        # }  
             return {
-                "A": Task(Skill.PassToPos(Player.Pos("B"), kickpower = PlayerDist - 1500)), # GetBestPower 不可用的话，就得自己寻找合适值
-                "B": Task(Skill.Stop()),
-                "C": Task(Skill.Goalie(), fixedNumber=0)
-            }   
-        elif PlayerDist > 3000:
-            return {
-                "A": Task(Skill.PassToPos(Player.Pos("B"), kickpower = PlayerDist)), # GetBestPower 不可用的话，就得自己寻找合适值
-                "B": Task(Skill.Stop()),
-                "C": Task(Skill.Goalie(), fixedNumber=0)
-            }   
-        elif PlayerDist > 1000:
-            return {
-                "A": Task(Skill.PassToPos(Player.Pos("B"), kickpower = PlayerDist + 1000)), # GetBestPower 不可用的话，就得自己寻找合适值
-                "B": Task(Skill.Stop()),
-                "C": Task(Skill.Goalie(), fixedNumber=0)
-            }   
-        else:
-            return {
-            "A": Task(Skill.PassToPos(Player.Pos("B"), kickpower = 1000)), # GetBestPower 不可用的话，就得自己寻找合适值
+            "A": Task(Skill.PassToPos(Player.Pos("B"), kickpower = 3000)), # GetBestPower 不可用的话，就得自己寻找合适值
             "B": Task(Skill.Stop()),
+            # "B": Task(Skill.RushTo(Ball.pos(), angle = Player.toBallDir("B"), maxAcc = 1)),
             "C": Task(Skill.Goalie(), fixedNumber=0)
-        }  
-
+        } 
     @override
     def transFunction(self) -> str:
-        # 理论
-        # global PlayerDist
-        # if PlayerDist > 5000:
-        #     if (Ball.pos() - Player.pos("B")).mod() < 3000: # 为了流畅度这个200可以调整
-        #         return "Get"
-        # elif PlayerDist > 3000:
-        #     if (Ball.pos() - Player.pos("B")).mod() < 3000:
-        #         return "Get"
-        # elif PlayerDist >= 0:
-        #     if (Ball.pos() - Player.pos("B")).mod() < 2000:
-        #         return "Get"
-        # 实际
-        if (Ball.pos() - Player.pos("B")).mod() < 3000:
-            return "Get" 
+         #理论
+        global PlayerDist
+        if PlayerDist > 5000:
+            if (Ball.pos() - Player.pos("B")).mod() < 2000: # 为了流畅度这个200可以调整
+                return "Get"
+        elif PlayerDist > 3000:
+            if (Ball.pos() - Player.pos("B")).mod() < 1500:
+                return "Get"
+        elif PlayerDist >= 0:
+            if (Ball.pos() - Player.pos("B")).mod() < 1000:
+                return "Get"
+        # # 实际
+        # if (Ball.pos() - Player.pos("B")).mod() < 3000:
+        #     return "Get" 
         
 class Get(State):
     @override
@@ -157,7 +157,7 @@ class Get(State):
     @override
     def getTasks(self) -> "dict[str, Task]":
         return {
-            "A": Task(Skill.NormalShoot(power = 12700, isChip = False)), # 少用Stop
+            "A": Task(Skill.Stop()), # 少用Stop
             # "A": Task(Skill.RushTo(Ball.pos(), angle = Player.toBallDir("A"), maxAcc = 1)),
             "B": Task(Skill.GetBall()),
             "C": Task(Skill.Goalie(), fixedNumber=0)
@@ -179,8 +179,30 @@ class Score(State):
         return "[A][B]{C}" # TOD:还没修改
     @override
     def getTasks(self) -> "dict[str, Task]":
-        return {
-            "A": Task(Skill.NormalShoot(isChip=False, power=12700)), # isChip 可以修改
+        if Ball.posY()-50 <= Enemy.posY(0) <= Ball.posY()+50 and Ball.posY() >= 0:
+            return {
+            "A": Task(Skill.PassToPos(GoalPointDown, 12000)), # isChip 可以修改
+            # "B": Task(Skill.RushTo(Ball.pos(), angle = Player.toBallDir("B"), maxAcc = 1)),
+            "B": Task(Skill.Stop()),
+            "C": Task(Skill.Goalie(), fixedNumber=0)
+        }
+        if Ball.posY()-50 <= Enemy.posY(0) <= Ball.posY()+50 and Ball.posY() <= 0:
+            return {
+            "A": Task(Skill.PassToPos(GoalPointUp, 12000)), # isChip 可以修改
+            # "B": Task(Skill.RushTo(Ball.pos(), angle = Player.toBallDir("B"), maxAcc = 1)),
+            "B": Task(Skill.Stop()),
+            "C": Task(Skill.Goalie(), fixedNumber=0)
+        }
+        if Ball.posY() >= 0:
+           return {
+            "A": Task(Skill.PassToPos(GoalPointUp, 12000)), # isChip 可以修改
+            # "B": Task(Skill.RushTo(Ball.pos(), angle = Player.toBallDir("B"), maxAcc = 1)),
+            "B": Task(Skill.Stop()),
+            "C": Task(Skill.Goalie(), fixedNumber=0)
+        }
+        else:
+            return {
+            "A": Task(Skill.PassToPos(GoalPointDown, 12000)), # isChip 可以修改
             # "B": Task(Skill.RushTo(Ball.pos(), angle = Player.toBallDir("B"), maxAcc = 1)),
             "B": Task(Skill.Stop()),
             "C": Task(Skill.Goalie(), fixedNumber=0)
