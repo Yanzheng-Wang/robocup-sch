@@ -385,7 +385,7 @@ def notControlBall() -> int:
         int: _description_
     """
     global validNum
-    for i in validNum:
+    for i in range(0, Params.maxPlayer -1):
         if valid(i):
             if not successEnemyGetBall(i):
                 return i
@@ -393,8 +393,8 @@ def notControlBall() -> int:
  
 # 最靠近己方球门的号码
 def nearestToOurGoalNum():
-    result = 1
-    for i in range(1, Params.maxPlayer):
+    result = 0
+    for i in range(0, Params.maxPlayer):
         if valid(i):
             if posX(result) > posX(i):
                 result = i
