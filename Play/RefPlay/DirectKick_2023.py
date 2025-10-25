@@ -89,7 +89,13 @@ class PassBall(State):
     def getTasks(self) -> "dict[str, Task]":
         print("let's Pass the Ball")
         return {
-            "A": Task(Skill.PassToPos(Player.pos("L"), kickpower=6000)),
+
+            # ====================================================================================================
+            
+            "A": Task(Skill.PassToPos(Player.pos("L"), kickpower=8000)),
+
+            #==========================================================================================
+
             "L": Task(Skill.RushTo(ReceivePos(), Player.toBallDir('L'), flag = Flags.dodge_ball)),
             "G": Task(Skill.Goalie()),
         }

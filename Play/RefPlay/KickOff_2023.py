@@ -82,7 +82,13 @@ class KickOff(State):
 
     def getTasks(self) -> "dict[str, Task]":
         tasks = {
-            "L": Task(Skill.PassToPos(RECEIVE_POS_1, kickpower=6000)),
+
+            # ==================================================================================
+
+            "L": Task(Skill.PassToPos(RECEIVE_POS_1, kickpower=8000)),
+
+            # ================================================================================================
+
             "A": Task(Skill.RushTo(RECEIVE_POS_1, Player.toBallDir('A'), flag=Flags.allow_dss)),
             "G": Task(Skill.Goalie()),
         }
