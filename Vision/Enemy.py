@@ -5,7 +5,7 @@ from Global import debugEngine
 from Vision import Player, Ball
 from WorldModel import Params
 ball:"CppPackage.BallVisionT" = CppPackage.VisionModule.Instance().ball()
-
+ 
 defenceInfo = CppPackage.DefenceInfo.Instance()
 def instance(role) -> "PlayerVisionT":
     if isinstance(role, int):
@@ -13,96 +13,43 @@ def instance(role) -> "PlayerVisionT":
     else:
         print("Invalid role in Enemy.instance!!!")
         return None
-
+ 
 def pos(role):
     return instance(role).Pos()
-
+ 
 def posX(role):
     return instance(role).X()
-
+ 
 def posY(role):
     return instance(role).Y()
-
+ 
 def dir(role):
     return instance(role).Dir()
-
+ 
 def vel(role):
     return instance(role).Vel()
-
+ 
 def velDir(role):
     return vel(role).dir()
-
+ 
 def velMod(role):
     return vel(role).mod()
-
+ 
 def rotVel(role):
     return instance(role).RotVel()
-
+ 
 def valid(role):
     return instance(role).Valid()
-
+ 
 def toBallDir(role):
     return (Ball.Pos() - pos(role)).dir()
-
+ 
 def toBallDist(role):
     return pos(role).dist(Ball.Pos())
-
+ 
 def attackNum():
     return defenceInfo.getAttackNum()
-
-
-def successGetBall(role: int) -> bool:
-    '''
-    用于判断进攻球员是否拿到球，可根据实际修改对应的距离数值
-    '''
-    if (Ball.pos() - pos(role)).mod() < 200:
-        return True 
-    else:
-        return False
-
-validNum =[]
-def updateValidNum():
-    """
-    用于更新除门将外的敌人的有效编号
-    Returns:
-        _type_: _description_
-    """
-    global validNum
-    for i in range(1, Params.maxPlayer):
-        if valid(i):
-            validNum.append(i)
-    return validNum
-
-def isEnemyControlBall() -> bool:
-    """
-    用于判断敌方是否处于控球状态
-    Returns:
-        bool: _description_
-    """
-    updateValidNum()
-    global validNum
-    for i in validNum:
-        if valid(i):
-            if successGetBall(i):
-                return True
-    return False
-
-def notControlBall() -> int:
-    """
-    用于找到没有控球敌人的编号
-    Raises:
-        ValueError: _description_
-
-    Returns:
-        int: _description_
-    """
-    global validNum
-    for i in validNum:
-        if valid(i):
-            if not successGetBall(i):
-                return i
-    raise ValueError("cannot Find not Control Ball Enemy!!!!!!!!!!!!!!!")
-
+ 
 lastnum = 0
 def myattackNum():
     global lastnum
@@ -116,7 +63,7 @@ def myattackNum():
         return 1
     else:
         return num
-
+ 
 def myattackNum1():
     num = 0
     for i in range(Params.maxPlayer):
@@ -124,10 +71,10 @@ def myattackNum1():
             if posX(i) < -Params.pitchLength / 8:
                 num += 1
     return num
-
+ 
 def situChanged():
     return defenceInfo.getTriggerState()
-
+ 
 def mysituChanged():
     global lastnum
     num = 0
@@ -139,49 +86,49 @@ def mysituChanged():
         return True
     else:
         return False
-
+ 
 def isGoalie(role):
     if pos(role).dist(CGeoPoint(Params.pitchLength / 2.0, 0)) < 850:
         return True
     return False
-
+ 
 def isDefender(role):
     if pos(role).dist(CGeoPoint(Params.pitchLength / 2.0, 0)) < 120 and not isGoalie(role):
         return True
     return False
-
+ 
 def isMarking(role):
     # 原Lua代码有误，这里假设只要不是后卫且有位置就算marking
     if pos(role) and not isDefender(role):
         return True
     return False
-
+ 
 def isAttacker(role):
     if posX(role) < 0 and not isMarking(role):
         return True
     return False
-
+ 
 def isBallFacer(role):
     if pos(role).dist(Ball.Pos()) < 600:
         return True
     return False
-
+ 
 # def hasReceiver():
 #     return CEnemyHasReceiver()
-
+ 
 gEnemyMsg = {
     "goaliePos": CGeoPoint(Params.pitchLength / 2.0, 0)
 }
-
+ 
 # def updateCorrectGoaliePos():
 #     theirGoalieNum = skillUtils.getTheirGoalie()
 #     if valid(theirGoalieNum):
 #         gEnemyMsg["goaliePos"] = pos(theirGoalieNum)
 #     return gEnemyMsg["goaliePos"]
-
+ 
 def getTheirGoaliePos():
     return gEnemyMsg["goaliePos"]
-
+ 
 def nearest():
     nearDist = 99999
     nearNum = 0
@@ -191,7 +138,7 @@ def nearest():
             nearDist = theDist
             nearNum = i
     return pos(nearNum), dir(nearNum)
-
+ 
 iNum = 0
 def nearest1():
     global iNum
@@ -207,12 +154,12 @@ def nearest1():
             nearNum = i
     iNum = nearNum
     return pos(nearNum)
-
+ 
 def IsTooClose2Ball(role):
     if toBallDist(role) < 2000:
         return True
     return False
-
+ 
 def nearNum():
     nearDist = 99999
     result = 0
@@ -222,26 +169,17 @@ def nearNum():
             nearDist = theDist
             result = i
     return result
-
-# 最靠近己方球门的号码
-def nearestToOurGoalNum():
-    result = 1
-    for i in range(1, Params.maxPlayer):
-        if valid(i):
-            if posX(result) > posX(i):
-                result = i
-    return result
-
+ 
 def markPos():
     return pos(iNum)
-
+ 
 def findgoalie():
     for i in range(Params.maxPlayer):
         if valid(i):
             if isGoalie(i):
                 return i
     return -1
-
+ 
 def shootp():
     upgoal = CGeoPoint(Params.pitchLength / 2, Params.goalWidth / 2 - 100)
     down = CGeoPoint(Params.pitchLength / 2, -Params.goalWidth / 2 + 100)
@@ -250,7 +188,7 @@ def shootp():
     else:
         pos_ = upgoal
     return pos_
-
+ 
 def togoaldirjud(role):
     upgoal = CGeoPoint(Params.pitchLength / 2, Params.goalWidth / 2 - 100)
     down = CGeoPoint(Params.pitchLength / 2, -Params.goalWidth / 2 + 100)
@@ -259,13 +197,13 @@ def togoaldirjud(role):
     else:
         dir_ = (upgoal - Player.Pos(role)).dir()
     return dir_
-
+ 
 def isnearball():
     for i in range(Params.maxPlayer):
         if valid(i) and (pos(i) - Ball.Pos()).mod() < 300:
             return True
     return False
-
+ 
 def judgetbest():
     up = 0
     down = 0
@@ -279,14 +217,14 @@ def judgetbest():
         return True
     else:
         return False
-
+ 
 def judthierget():
     for i in range(Params.maxPlayer):
         if valid(i):
             if (pos(i) - Ball.Pos()).mod() < 105 and abs(dir(i) - (Ball.Pos() - pos(i)).dir()) < math.pi / 8:
                 return True
     return False
-
+ 
 # def penaltyjud(role, p):
 #     p1 = Player.Pos(role)
 #     if callable(p):
@@ -303,7 +241,7 @@ def judthierget():
 #         return False
 #     else:
 #         return True
-
+ 
 lastnum = -1 #什么傻逼东西在外面定义了
 def findenemy():
     global lastnum
@@ -318,7 +256,7 @@ def findenemy():
                 lastnum = i
                 return pos(i)
     return None
-
+ 
 realnum = 16
 def enemypos1():
     global realnum, lastnum
@@ -347,7 +285,7 @@ def enemypos1():
                 return pos(realnum)
     else:
         return pos(realnum)
-
+ 
 def Leftpos():
     for i in range(Params.maxPlayer):
         if valid(i):
@@ -355,7 +293,7 @@ def Leftpos():
                 if posY(i) <= 0 and pos(i).dist(Ball.Pos()) > 1000:
                     return pos(i)
     return CGeoPoint(150, -Params.pitchWidth / 4 - 500)
-
+ 
 def Rightpos():
     for i in range(Params.maxPlayer):
         if valid(i):
@@ -363,7 +301,7 @@ def Rightpos():
                 if posY(i) > 0 and pos(i).dist(Ball.Pos()) > 1000:
                     return pos(i)
     return CGeoPoint(150, Params.pitchWidth / 4 + 500)
-
+ 
 def getneddpos(str_, max_):
     def inner():
         this = 0
@@ -400,8 +338,70 @@ def getneddpos(str_, max_):
                     topos[this] = pos(i)
         return topos.get(num)
     return inner
-
-
+ 
+#=================================================================#
+# 下面为自己增加的函数
+def successEnemyGetBall(role: int) -> bool:
+    '''
+    用于判断进攻球员是否拿到球，可根据实际修改对应的距离数值
+    '''
+    if (Ball.pos() - pos(role)).mod() < 200:
+        return True
+    else:
+        return False
+ 
+validNum =[]
+def updateValidNum():
+    """
+    用于更新除门将外的敌人的有效编号
+    Returns:
+        _type_: _description_
+    """
+    global validNum
+    for i in range(1, Params.maxPlayer):
+        if valid(i):
+            validNum.append(i)
+    return validNum
+ 
+def isEnemyControlBall() -> bool:
+    """
+    用于判断敌方是否处于控球状态
+    Returns:
+        bool: _description_
+    """
+    updateValidNum()
+    global validNum
+    for i in validNum:
+        if valid(i):
+            if successEnemyGetBall(i):
+                return True
+    return False
+ 
+def notControlBall() -> int:
+    """
+    用于找到没有控球敌人的编号
+    Raises:
+        ValueError: _description_
+ 
+    Returns:
+        int: _description_
+    """
+    global validNum
+    for i in validNum:
+        if valid(i):
+            if not successEnemyGetBall(i):
+                return i
+    raise ValueError("cannot Find not Control Ball Enemy!!!!!!!!!!!!!!!")
+ 
+# 最靠近己方球门的号码
+def nearestToOurGoalNum():
+    result = 1
+    for i in range(1, Params.maxPlayer):
+        if valid(i):
+            if posX(result) > posX(i):
+                result = i
+    return result
+ 
 # --------------------没有用的函数--------------------
 # def best():
 #     return SkillUtils.getTheirBestPlayer()
