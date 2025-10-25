@@ -37,16 +37,26 @@ class Dribble(State):
     
     @override
     def getTasks(self) -> dict[str, Task]:
+        # if 0 < Ball.posX() < 1500:
+        #     return {
+        #         "A": Task(Skill.PassToPos(CGeoPoint(3500, 0), 3000)),
+        #         "B": Task(Skill.RushTo(Enemy.pos(Enemy.nearestToOurGoalNum()), Player.toBallDir("B"))),
+        #         "C": Task(Skill.Goalie(), fixedNumber=0)
+        #     }
         if Ball.posY() > 0:
             return{
-                "A": Task(Skill.PassToPos(CGeoPoint(3500, 400), kickpower=2000)),
-                "B": Task(Skill.WMarking(priority = 1, num = Enemy.nearestToOurGoalNum())),
+                # "A": Task(Skill.PassToPos(CGeoPoint(3500, 400), kickpower=2000)),
+                "A": Task(Skill.RushTo(CGeoPoint(3500, 400), Player.calToPointDir("A",CGeoPoint(4500, 0)), needDribble=True)),
+                # "B": Task(Skill.WMarking(priority = 1, num = Enemy.nearestToOurGoalNum())),
+                "B": Task(Skill.RushTo(Enemy.pos(Enemy.nearestToOurGoalNum()), Player.toBallDir("B"))),
                 "C": Task(Skill.Goalie(), fixedNumber=0)
             }
         else:
             return{
-                "A": Task(Skill.PassToPos(CGeoPoint(3500, -400), kickpower=2000)),
-                "B": Task(Skill.WMarking(priority = 1, num = Enemy.nearestToOurGoalNum())),
+                # "A": Task(Skill.PassToPos(CGeoPoint(3500, -400), kickpower=2000)),
+                "A": Task(Skill.RushTo(CGeoPoint(3500, 400), Player.calToPointDir("A",CGeoPoint(4500, 0)), needDribble=True)),
+                # "B": Task(Skill.WMarking(priority = 1, num = Enemy.nearestToOurGoalNum())),
+                "B": Task(Skill.RushTo(Enemy.pos(Enemy.nearestToOurGoalNum()), Player.toBallDir("B"))),
                 "C": Task(Skill.Goalie(), fixedNumber=0)
             }
 
@@ -66,9 +76,9 @@ class Dribble(State):
     
     @override
     def transFunction(self) -> str:
-        if Ball.isBallOutSide() or Ball.isBallInBox() or Enemy.isEnemyControlBall():
+        if not Player.isOurPlayerControlBall() and (Ball.isBallOutSide() or Ball.isBallInBox() or Enemy.isEnemyControlBall()):
             return "Defense"
-        if Player.isOurPlayerNearGoal("A", "B") or (Ball.posX() > 2000 and(Player.posX("A") > 1800 or Player.posX("B") > 1800)):
+        if (Ball.posX() > 2000 and(Player.posX("A") > 1800 or Player.posX("B") > 1800)):
             return "LastShoot"
 
 class LastShoot(State):
@@ -85,14 +95,16 @@ class LastShoot(State):
             return {
                     "A": Task(Skill.PassToPos(GoalPointDown, 12000)),
                     # "B": Task(Skill.SimpleGoTo(PostPassPosition)),
-                    "B": Task(Skill.WMarking(priority = 1, num = Enemy.nearestToOurGoalNum())),
+                    # "B": Task(Skill.WMarking(priority = 1, num = Enemy.nearestToOurGoalNum())),
+                    "B": Task(Skill.RushTo(Enemy.pos(Enemy.nearestToOurGoalNum()), Player.toBallDir("B"))),
                     "C": Task(Skill.Goalie(), fixedNumber=0)
                 }
         else:
             return {
                     "A": Task(Skill.PassToPos(GoalPointUp, 12000)),
                     # "B": Task(Skill.SimpleGoTo(PostPassPosition)),
-                    "B": Task(Skill.WMarking(priority = 1, num = Enemy.nearestToOurGoalNum())),
+                    # "B": Task(Skill.WMarking(priority = 1, num = Enemy.nearestToOurGoalNum())),
+                    "B": Task(Skill.RushTo(Enemy.pos(Enemy.nearestToOurGoalNum()), Player.toBallDir("B"))),
                     "C": Task(Skill.Goalie(), fixedNumber=0)
                 }
     
@@ -145,8 +157,9 @@ class Defense(State):
                 # TODO: NormalShoot解围的力道要根据实际情况调整
 
 
-                "A": Task(Skill.NormalShoot(1000, isChip=True)),
-                "B": Task(Skill.WMarking(priority = 1, num=Enemy.nearestToOurGoalNum())),
+                "A": Task(Skill.NormalShoot(max(2000, abs(Ball.posX())), isChip=True)),
+                # "B": Task(Skill.WMarking(priority = 1, num=Enemy.nearestToOurGoalNum())),
+                "B": Task(Skill.RushTo(Enemy.pos(Enemy.nearestToOurGoalNum()), Player.toBallDir("B"))),
                 "C": Task(Skill.Goalie())
             }
     
@@ -158,9 +171,9 @@ class Defense(State):
 
 # todo: start state
 @declare_state_machine(
+    Defense,
     Dribble,
     LastShoot,
-    Defense
 )
-class NoPass(StateMachine):
+class NoPass_v3(StateMachine):
     pass

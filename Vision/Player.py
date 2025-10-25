@@ -598,7 +598,7 @@ def calToPointDir(role: str, p: CGeoPoint) -> float:
     '''
     用于计算对应的球员到某个点的方向
     '''
-    return (pos(role) - p).dir()
+    return (p - pos(role)).dir()
  
 def calToBallDist(role: str) -> float:
     return calToPointDist(role, Ball.pos())
@@ -612,6 +612,23 @@ def isOurPlayerControlBall():
         if valid(i):
             if successGetBall(i):
                 return True
+    return False
+
+
+def isOurPlayerLoseBall() -> bool:
+    '''
+    用于判断我们的球员是否丢失了球权，这样更好做出防守的判断
+    '''
+    if not isOurPlayerControlBall() and Enemy.isEnemyControlBall():
+        return True
+    else:
+        return False
+    
+
+def isOurPlayerNearGoal(role1, role2):
+    if Ball.posX() > 2500:
+        if (posX(role1) > 2800 or posX(role2) > 2800):
+            return True
     return False
  
 # -----------------------没有用的函数---------------------------

@@ -6,10 +6,11 @@ from Play.Test.Test_GetBall import Test_GetBall
 from Play.RefPlay import *
 # from Play.Normal.NormalPlay_3vs3_wyz import NormalPlay_3vs3_wyz
 # from Play.Normal.Wyz_v2 import Wyz_v2
-from Play.Normal.Defend import Defend
-from Play.Normal.Jyz_v8 import Jyz_v8 
-from Play.Normal.Wyz_v7 import Wyz_v7
-from Play.Normal.NoPass import NoPass
+# from Play.Normal.Defend import Defend
+from Play.Normal.Jyz_v9 import Jyz_v9 
+# from Play.Normal.Wyz_v7 import Wyz_v7
+# from Play.Normal.NoPass_v2 import NoPass_v2
+from Play.Normal.NoPass_v2 import NoPass_v2
 # from Play.Normal.Test111 import Test111
 # from Play.Normal.TestPass import TestPass
 
@@ -43,7 +44,7 @@ from Play.RefPlay import *
 Global.gameStrategies = {
     # 从Other.lua中迁移过来，对应脚本的原始关系参照Other.lua
     # -------------------------Normal Play--------------------------------------------
-    "NormalPlay": GameStrategy(NoPass(), Wyz_v7()),
+    "NormalPlay": GameStrategy(NoPass_v2(), Jyz_v9()),
     # NorPlay更名为NormalPlay "NormalPlayMessi_11vs11_new",   # "NormalPlayMessi_8vs8tozju", # "NormalPlayMessi_8vs8tozju",
 
     # -------------------------Kick--------------------------------------------

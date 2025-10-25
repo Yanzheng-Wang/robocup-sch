@@ -350,14 +350,14 @@ def successEnemyGetBall(role: int) -> bool:
     else:
         return False
  
-validNum =[]
-def updateValidNum():
+
+def getValidNum():
     """
     用于更新除门将外的敌人的有效编号
     Returns:
         _type_: _description_
     """
-    global validNum
+    validNum =[]
     for i in range(1, Params.maxPlayer):
         if valid(i):
             validNum.append(i)
@@ -369,9 +369,7 @@ def isEnemyControlBall() -> bool:
     Returns:
         bool: _description_
     """
-    updateValidNum()
-    global validNum
-    for i in validNum:
+    for i in range(1, Params.maxPlayer - 1):
         if valid(i):
             if successEnemyGetBall(i):
                 return True
@@ -391,7 +389,7 @@ def notControlBall() -> int:
         if valid(i):
             if not successEnemyGetBall(i):
                 return i
-    raise ValueError("cannot Find not Control Ball Enemy!!!!!!!!!!!!!!!")
+
  
 # 最靠近己方球门的号码
 def nearestToOurGoalNum():

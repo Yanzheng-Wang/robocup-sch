@@ -17,12 +17,14 @@ from RoleMatch_LuaStyle.Skills.Skill import *
 class Defense(State):
     @override
     def getMatchString(self) -> str:
-        return "[A]"
+        return "[ABC]"
     
     @override
     def getTasks(self):
         return{
             "A": Task(Skill.Goalie()),
+            "B": Task(Skill.WMarking(priority = 1, num = 1)),
+            "C": Task(Skill.WMarking(priority=1, num =2))
         }
     
     @override
