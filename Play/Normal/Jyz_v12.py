@@ -144,12 +144,12 @@ class LastShoot(State):
         # TODO：实际场地哪个效果好就用哪个
 
         # 如果真的力道，又没有其他替代办法
-        return {
-                    # "A": Task(Skill.Shoot(power = 12700)),
-                    "A": Task(Skill.NormalShoot(12700, False)),
-                    "B": Task(Skill.WMarking(priority = 1, num = Enemy.nearestToOurGoalNum())),
-                    "C": Task(Skill.Goalie(), fixedNumber=0)
-                }
+        # return {
+        #             # "A": Task(Skill.Shoot(power = 12700)),
+        #             "A": Task(Skill.NormalShoot(12700, False)),
+        #             "B": Task(Skill.WMarking(priority = 1, num = Enemy.nearestToOurGoalNum())),
+        #             "C": Task(Skill.Goalie(), fixedNumber=0)
+        #         }
 
         # 因为实地passTopos力道很小，故使用Shoot TODO:测试
         # if Ball.posY() < -600 or 0 < Ball.posY() < 600:

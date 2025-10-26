@@ -9,6 +9,7 @@ from Play.RefPlay import *
 from Play.Normal.Defend import Defend
 from Play.Normal.Jyz_v12 import Jyz_v12 
 from Play.Normal.Jyz_v13 import Jyz_v13
+from Play.Normal.TestShoot import TestShoot
 # from Play.Normal.Wyz_v7 import Wyz_v7
 # from Play.Normal.NoPass_v4 import NoPass_v4
 from Play.Normal.NoPass_v4 import NoPass_v4
